@@ -1,4 +1,4 @@
-# stagsonclick
+# cloningmodels
 
 "Cloning And Animating Models Loaded From glTF Files - Three.js Tutorial" YouTube tutorial project files https://youtu.be/Q3UqOJrdugY
 
