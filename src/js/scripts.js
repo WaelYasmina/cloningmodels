@@ -58,7 +58,6 @@ const planeMesh = new THREE.Mesh(
 );
 planeMesh.rotateX(-Math.PI / 2);
 scene.add(planeMesh);
-planeMesh.name = 'ground';
 
 const grid = new THREE.GridHelper(20, 20);
 scene.add(grid);
@@ -82,10 +81,9 @@ window.addEventListener('mousemove', function(e) {
     mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
     mousePosition.y = -(e.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mousePosition, camera);
-    intersects = raycaster.intersectObjects(scene.children);
-    intersects.forEach(function(intersect) {
-        if(intersect.object.name === 'ground') {
-            const highlightPos = new THREE.Vector3().copy(intersect.point).floor().addScalar(0.5);
+    intersects = raycaster.intersectObject(planeMesh);
+        if(intersects.length > 0) {
+            const highlightPos = new THREE.Vector3().copy(intersects[0].point).floor().addScalar(0.5);
             highlightMesh.position.set(highlightPos.x, 0, highlightPos.z);
 
             const objectExist = objects.find(function(object) {
@@ -98,7 +96,6 @@ window.addEventListener('mousemove', function(e) {
             else
                 highlightMesh.material.color.setHex(0xFF0000);
         }
-    });
 });
 
 // const sphereMesh = new THREE.Mesh(
@@ -118,21 +115,19 @@ window.addEventListener('mousedown', function() {
     });
 
     if(!objectExist) {
-        intersects.forEach(function(intersect) {
-            if(intersect.object.name === 'ground') {
-                const stagClone = SkeletonUtils.clone(stag);
-                stagClone.position.copy(highlightMesh.position);
-                scene.add(stagClone);
-                objects.push(stagClone);
-                highlightMesh.material.color.setHex(0xFF0000);
+        if(intersects.length > 0) {
+            const stagClone = SkeletonUtils.clone(stag);
+            stagClone.position.copy(highlightMesh.position);
+            scene.add(stagClone);
+            objects.push(stagClone);
+            highlightMesh.material.color.setHex(0xFF0000);
 
-                const mixer = new THREE.AnimationMixer(stagClone);
-                const clip = THREE.AnimationClip.findByName(clips, 'Idle_2');
-                const action = mixer.clipAction(clip);
-                action.play();
-                mixers.push(mixer);
-            }
-        });
+            const mixer = new THREE.AnimationMixer(stagClone);
+            const clip = THREE.AnimationClip.findByName(clips, 'Idle_2');
+            const action = mixer.clipAction(clip);
+            action.play();
+            mixers.push(mixer);
+        }
     }
     console.log(scene.children.length);
 });
